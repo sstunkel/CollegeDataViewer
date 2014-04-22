@@ -20,6 +20,15 @@ var infowindow;
 var infowindowarray=[];
 var listenerarray=[];
 
+function makeid(original){
+  var newid = original.replace(/\s+/g, '');
+  newid = newid.replace(/["'()]/g, "");
+  newid = newid.replace("%", "");
+  newid = newid.replace("#", "");
+  newid = newid.replace(".", "");
+  return newid
+}
+
 function mapinitialize()
 {
     var mapOptions = {
@@ -35,10 +44,12 @@ function extractLocations(rows, selection)
     var locations = [];
     var weight = 0;
     var name = ""
+    var id=0
     for (var i = 0; i < rows.length; ++i)
     {
         weight=0;
         name = ""
+        id=0;
         var row = rows[i];
         if (row.Latitude)
         {
@@ -52,11 +63,15 @@ function extractLocations(rows, selection)
                 if(row["institution name"]){
                   name = row["institution name"];
                 }
+                 if(row["unitid"]){
+                  id = row["unitid"].toString();
+                }
                 locations.push(
                 {
                     location: latLng,
                     weight: parseFloat(weight),
-                    name: name
+                    name: name,
+                    id: id
                 });
             }
         }
@@ -114,11 +129,12 @@ function drawMarkers(mapLocations)
                 {
                     url:"/highschool.png",
                     scaledSize:{"width":20, "height":20},
-                }
+                },
+                id: mapLocations[i].id
             });
             markerarray.push(newmarker);
             google.maps.event.addDomListener(newmarker, 'click', function() {
-              infowindowarray[this.title].open(map,this);
+              infowindowarray[this.id].open(map,this);
             });
             
         }
@@ -127,14 +143,55 @@ function drawMarkers(mapLocations)
 
 function initializeinfowindows(){
   for (x in uniarray){
-    var name = uniarray[x]["institution name"];
+    var row = uniarray[x]
+    var id = uniarray[x]["unitid"].toString();
+    var name = uniarray[x]["institution name"]
+    var content = "Statistics for "+ name +"<br>"
+    content += "City: " + uniarray[x]["City"] + "<br>"
+   /* for (y in row){
+      if(y!="institution name" && y!="City"&& y!="unitid"&& y!="Longitude"&& y!="Latitude"&& y!="Address"&& y!="Zip Code"&& y!="year"){
+        var windowid = makeid(y);
+        var value = row[y];
+        if (value==""){
+          value = "Not Reported"
+        }
+        windowid+="window";
+        content+="<div id='"+windowid+"' class='infowindowstats'>"+y+": "+value+"<br>";
+      }
+    }*/ 
+
     infowindow = new google.maps.InfoWindow({
-      content:"Statistics for "+name
+      content: content
     });
-    infowindowarray[name]=infowindow;
+    infowindowarray[id]=infowindow;
   }
 }
 
+function addtoinfowindow(buttonid){
+    for (x in uniarray){
+    var row = uniarray[x]
+    var id = uniarray[x]["unitid"].toString();
+    var name = uniarray[x]["institution name"]
+    var content = infowindowarray[id].getContent()
+    var windowid = makeid(buttonid);
+    var value = row[buttonid];
+    if (value==""){
+          value = "Not Reported"
+        }
+    windowid+="window";
+    content+="<div id='"+windowid+"' class='infowindowstats'>"+buttonid+": "+value+"<br>";
+    infowindowarray[id].setContent(content);
+  }
+}
+
+function removefrominfowindow(buttonid){
+  for(x in infowindowarray){
+    var content = $(infowindowarray[x].getContent());
+    var search = "\<div id= '" + buttonid + "'>.*\</div>"
+    var regex = new RegExp(search)
+    content = content.replace(regex, "")
+  }
+}
 
 function updatemarkers(){
 
@@ -267,7 +324,6 @@ function removelegend(buttonid, legendid)
 }
 
 
-
         $(document).ready(function()
         {
             jQuery.get('/combinedcollegedata.csv', function(data)
@@ -318,6 +374,7 @@ function removelegend(buttonid, legendid)
                 console.log(lastselectorclicked);
                 if (!($(this).hasClass("active")))
                 {
+                  addtoinfowindow(buttonid);
                   markershowing++;
                   $(this).addClass("active");
                   var data = extractLocations(uniarray, buttonid)
@@ -344,6 +401,7 @@ function removelegend(buttonid, legendid)
 
                     
                     $(this).removeClass("active");
+                    removefrominfowindow(buttonid);
 
                 }
             });
