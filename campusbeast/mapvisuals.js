@@ -95,46 +95,6 @@ function drawHeatmap(locations, buttonid)
     // console.log(heatmap);
 }
 
-function drawMarkersWithLabels(mapLocations, number)
-{
-    var newmarker;
-    // console.log(mapLocations);
-    for (i in mapLocations)
-    {
-        if (mapLocations[i].location && mapLocations[i].weight)
-        {
-            //console.log("iterating")
-            newmarker = new MarkerWithLabel(
-            {
-                position: mapLocations[i].location,
-                map: map,
-                icon:
-                {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 0
-                },
-                labelContent: number + ". " + mapLocations[i].weight,
-                labelAnchor: new google.maps.Point(0, pointy),
-                labelClass: "maplabels", // the CSS class for the label
-                labelStyle:
-                {
-                    opacity: 0.75
-                }
-            })
-            // console.log(newmarker);
-            if (map.zoom < 6)
-            {
-                newmarker.set("labelVisible", false);
-            }
-            markerarray.push(newmarker);
-
-
-
-        }
-
-    }
-    pointy += 10;
-}
 
 function drawMarkers(mapLocations)
 {
@@ -175,26 +135,6 @@ function initializeinfowindows(){
   }
 }
 
-
-function updatemarkerswithlabels()
-{
-    // console.log("updatemarkerswithlabels fired")
-    // console.log(markerarray);
-    if (map.zoom >= 6 && markerarray.length > 0)
-    {
-        for (var i = 0; i < markerarray.length; i++)
-        {
-            markerarray[i].set("labelVisible", true);
-        }
-    }
-    else
-    {
-        for (var i = 0; i < markerarray.length; i++)
-        {
-            markerarray[i].set("labelVisible", false);
-        }
-    }
-}
 
 function updatemarkers(){
 
@@ -480,36 +420,3 @@ function removelegend(buttonid, legendid)
             });
 
         });
-
-
-        /*
-      jQuery.get('/College Test Scores and Lat Long.csv', function (data) {
-        uniarray = $.csv.toObjects(data);
-        var count = 1;
-        jQuery.get('/College Data v2.csv', function (data) {
-          var sheet2=$.csv.toObjects(data);
-          var nomatchfound=true;
-          for (var i=0;i<sheet2.length;i++){
-            for(var j=0; j<uniarray.length;j++){
-                if(sheet2[i] && sheet2[i].unitid==uniarray[j].unitid){
-                  $.extend(uniarray[j],sheet2[i]);
-                  nomatchfound=false;
-                }
-              }
-              if(nomatchfound){
-                uniarray.push(sheet2[i]);
-              }
-              nomatchfound=true;
-            }
-            for (key in uniarray[0]) {
-              if (count > 9) {
-                var newselector = ($("<li id='" + key + "'><a href='#'>" + (count-9) + ". "+  key + "</a></li>"));
-                newselector.addClass("");
-                $("#selectors").append(newselector);
-              }
-              count++;
-            }
-          mapinitialize();
-          google.maps.event.addListener(map, 'zoom_changed',  function(){updatemarkerswithlabels()});
-          console.log(toCsv(uniarray));
-          });   when it was necessary to combine the two spreadsheets*/
