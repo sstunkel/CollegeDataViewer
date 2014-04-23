@@ -147,7 +147,7 @@ function initializeinfowindows(){
     var id = uniarray[x]["unitid"].toString();
     var name = uniarray[x]["institution name"]
     var content = "Statistics for "+ name +"<br>"
-    content += "City: " + uniarray[x]["City"] + "<br>"
+    content += "Located in " + uniarray[x]["City"] + "<br>"
    /* for (y in row){
       if(y!="institution name" && y!="City"&& y!="unitid"&& y!="Longitude"&& y!="Latitude"&& y!="Address"&& y!="Zip Code"&& y!="year"){
         var windowid = makeid(y);
@@ -185,11 +185,13 @@ function addtoinfowindow(buttonid){
 }
 
 function removefrominfowindow(buttonid){
+  var windowid = makeid(buttonid) +"window";
   for(x in infowindowarray){
-    var content = $(infowindowarray[x].getContent());
-    var search = "\<div id= '" + buttonid + "'>.*\</div>"
-    var regex = new RegExp(search)
-    content = content.replace(regex, "")
+    var content = infowindowarray[x].getContent();
+    content = $('<div>').html(content)
+    content.find("#"+windowid).replaceWith("");
+    content = content.html();
+    infowindowarray[x].setContent(content)
   }
 }
 
@@ -347,17 +349,22 @@ function removelegend(buttonid, legendid)
                 map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend[0]);
                 var options = $('<div id="options">Options for the map<br/><div class="btn-group-vertical"><button data-toggle="button" type="button" id="heatmapoption" class="btn btn-success btn-sm active">Heatmaps On</button><button type="button" id="markeroption" data-toggle="button" class="btn btn-success btn-sm active">Markers On when zoomed</button></div></div>');
                 map.controls[google.maps.ControlPosition.RIGHT_TOP].push(options[0]);
-               
-
 
                 google.maps.event.addListener(map, 'zoom_changed', function()
                 {
                     updatemarkers();
                     //updatemarkerswithlabels()
                 });
+              var newheight = $(window).height() * 0.80;
+              $("#map-canvas").height(newheight);
+              google.maps.event.trigger(map, 'resize');
             });
 
-
+            $(window).on('resize', function() {
+              var newheight = $(window).height() * 0.80;
+              $("#map-canvas").height(newheight);
+              google.maps.event.trigger(map, 'resize');
+            });
 
 
             $('body').on('click', "#selectors li", function()
