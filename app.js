@@ -8,6 +8,17 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+var $ = jQuery = require('jquery');
+
+//import db
+var uniarray = [];
+require('./campusbeast/jquery.csv-0.71.js');
+jQuery.get('/combinedcollegedata.csv', function(data)
+    {
+        uniarray = $.csv.toObjects(data);
+        console.log(uniarray);
+        console.log("done importing colleges")
+    });
 
 var app = express();
 
